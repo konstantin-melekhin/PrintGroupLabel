@@ -1,90 +1,86 @@
 ﻿Imports Library3
 
-Public Class WorkForm
+Public Class Aqua_GroupLabel
+
     Dim SQL As String
-    Private Sub Form_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        CB_SN_or_Box.Checked = True
-        Controllabel.Text = ""
-        'Устанавливаем дефолты при загоузке формы 
-        'Настройка COM порта
-        PrintSerialPort.PortName = "com3"
-        PrintSerialPort.BaudRate = 115200
-        'Требуется печать или нет
-        Try
-            PrintSerialPort.Open()
-            PrintSerialPort.Close()
-        Catch ex As Exception
-            PrintLabel(Controllabel, "Проверьте подключение ком порта!", 12, 142, Color.Red) ' если не настроен ком порт для печати
-            CB_SN_or_Box.Enabled = False
-            TB_ScanSN.Enabled = False
-        End Try
-        'Переносим константы из формы настроек в рабочую форму. Данные получаем из таблицы M_Lots
-        'Запуск программы
-        '___________________________________________________________
-        GetLotList_ContractStation(DG_Lot)
-        GetTimeSec()
+        Private Sub Form_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+            CB_SN_or_Box.Checked = True
+            Controllabel.Text = ""
+            'Устанавливаем дефолты при загоузке формы 
+            'Настройка COM порта
+            PrintSerialPort.PortName = "com3"
+            PrintSerialPort.BaudRate = 115200
+            'Требуется печать или нет
+            Try
+                PrintSerialPort.Open()
+                PrintSerialPort.Close()
+            Catch ex As Exception
+                PrintLabel(Controllabel, "Проверьте подключение ком порта!", 12, 142, Color.Red) ' если не настроен ком порт для печати
+                CB_SN_or_Box.Enabled = False
+                TB_ScanSN.Enabled = False
+            End Try
+            'Переносим константы из формы настроек в рабочую форму. Данные получаем из таблицы M_Lots
+            'Запуск программы
+            '___________________________________________________________
+            GetLotList_ContractStation(DG_Lot)
+            GetTimeSec()
 
-    End Sub
-    'запуск таймера
-    Private Sub CurrentTimeTimer_Tick(sender As Object, e As EventArgs) Handles CurrentTimeTimer.Tick
-        GetTimeSec()
-    End Sub
-    Dim CurentTimeSec As Integer
-    Private Sub GetTimeSec()
-        CurrentTimeTimer.Start()
-        CurrrentTimeLabel.Text = TimeString
-        CurentTimeSec = CurrrentTimeLabel.Text.Substring(0, 2) * 3600 + CurrrentTimeLabel.Text.Substring(3, 2) * 60 + CurrrentTimeLabel.Text.Substring(6, 2)
-    End Sub
+        End Sub
+        'запуск таймера
+        Private Sub CurrentTimeTimer_Tick(sender As Object, e As EventArgs) Handles CurrentTimeTimer.Tick
+            GetTimeSec()
+        End Sub
+        Dim CurentTimeSec As Integer
+        Private Sub GetTimeSec()
+            CurrentTimeTimer.Start()
+            CurrrentTimeLabel.Text = TimeString
+            CurentTimeSec = CurrrentTimeLabel.Text.Substring(0, 2) * 3600 + CurrrentTimeLabel.Text.Substring(3, 2) * 60 + CurrrentTimeLabel.Text.Substring(6, 2)
+        End Sub
 
-    Dim SearchSNList As New ArrayList
-    Dim SNArray As New ArrayList
-    Private Sub TB_ScanSN_KeyDown(sender As Object, e As KeyEventArgs) Handles TB_ScanSN.KeyDown
-        If e.KeyCode = Keys.Enter Then
-            SearchSNList = SerchSN(TB_ScanSN.Text)
-            If SearchSNList.Count <> 0 Then
-                SerchBoxForPrint(SearchSNList(1), SearchSNList(3))
-                SNArray = GetSNFromGrid()
-                If SNArray.Count = 13 Then
-                    PrintGroupLabel(SNArray)
+        Dim SearchSNList As New ArrayList
+        Dim SNArray As New ArrayList
+        Private Sub TB_ScanSN_KeyDown(sender As Object, e As KeyEventArgs) Handles TB_ScanSN.KeyDown
+            If e.KeyCode = Keys.Enter Then
+                SearchSNList = SerchSN(TB_ScanSN.Text)
+                If SearchSNList.Count <> 0 Then
+                    SerchBoxForPrint(SearchSNList(1), SearchSNList(3))
+                    SNArray = GetSNFromGrid()
+                    If SNArray.Count = 13 Then
+                        PrintGroupLabel(SNArray)
+                    Else
+                        PrintLabel(Controllabel, "Корбка еще не закрыта!", 12, 142, Color.Red)
+                    End If
+                    TB_ScanSN.Clear()
                 Else
-                    PrintLabel(Controllabel, "Корбка еще не закрыта!", 12, 142, Color.Red)
+                    TB_ScanSN.Clear()
+                    PrintLabel(Controllabel, "Номер не найден в базе!", Color.Red)
+                    Exit Sub
                 End If
-                TB_ScanSN.Clear()
-            Else
-                TB_ScanSN.Clear()
-                PrintLabel(Controllabel, "Номер не найден в базе!", Color.Red)
-                Exit Sub
             End If
-        End If
-    End Sub
+        End Sub
 
     Private Sub NumBox_KeyDown(sender As Object, e As KeyEventArgs) Handles NumBox.KeyDown
         If e.KeyCode = Keys.Enter And Lot <> 0 Then
             System.Threading.Thread.Sleep(1000)
             SerchBoxForPrint(Lot, NumBox.Value)
             SNArray = GetSNFromGrid()
-            If SNArray.Count = 13 Then
-                PrintGroupLabel(SNArray)
-            Else
-                PrintLabel(Controllabel, "Корбка еще не закрыта!", 12, 142, Color.Red)
-            End If
-            NumBox.Value += 1
+            PrintGroupLabel(SNArray)
         End If
     End Sub
 
     Private Function SerchSN(Sn As String)
-        SQL = "use fas
+            SQL = "use fas
                 SELECT  l.Content,p.[LOTID],Lit.LiterName ,[BoxNum]
                 FROM [FAS].[dbo].[Ct_PackingTable] as P
                 left join [SMDCOMPONETS].[dbo].[LazerBase] as L On l.IDLaser = PCBID
                 left join dbo.Ct_FASSN_reg as F On F.ID =P.SNID
                 left join dbo.FAS_Liter as Lit On Lit.ID = P.LiterID
                 where l.Content = '" & Sn & "'"
-        Return SelectListString(SQL) 'IB365MC001409
-    End Function
+            Return SelectListString(SQL) 'IB365MC001409
+        End Function
 
-    Private Sub SerchBoxForPrint(LotID As Integer, BoxNum As Integer) 'LitName As String,
-        SQL = "use fas
+        Private Sub SerchBoxForPrint(LotID As Integer, BoxNum As Integer) 'LitName As String,
+            SQL = "use fas
                 SELECT  [UnitNum] as '№',l.Content AS 'Серийный номер платы',Lit.LiterName as 'Литера' ,[BoxNum]as 'Номер коробки' 
                 FROM [FAS].[dbo].[Ct_PackingTable] as P
                 left join [SMDCOMPONETS].[dbo].[LazerBase] as L On l.IDLaser = PCBID
@@ -92,24 +88,24 @@ Public Class WorkForm
                 left join dbo.FAS_Liter as Lit On Lit.ID = P.LiterID
                 where p.lotid =" & LotID & " and BoxNum = " & BoxNum & "
                 order by UnitNum desc" 'and LiterName= '" & LitName & "'
-        LoadGridFromDB(DG_SelectedBox, SQL)
-    End Sub
+            LoadGridFromDB(DG_SelectedBox, SQL)
+        End Sub
 
-    Private Function GetSNFromGrid()
-        Dim SNArrayTemp As New ArrayList
-        If DG_SelectedBox.Rows.Count > 0 Then
-            For i = 0 To DG_SelectedBox.Rows.Count - 1
-                SNArrayTemp.Add(Mid(DG_SelectedBox.Item(1, i).Value, 1, 7) & ">5" & Mid(DG_SelectedBox.Item(1, i).Value, 8))
-            Next
-            SNArrayTemp.Add(DG_SelectedBox.Item(3, 0).Value)
-        Else
-            PrintLabel(Controllabel, "Корбка еще не закрыта!", 12, 142, Color.Red)
-        End If
-        Return SNArrayTemp
-    End Function
+        Private Function GetSNFromGrid()
+            Dim SNArrayTemp As New ArrayList
+            If DG_SelectedBox.Rows.Count > 0 Then
+                For i = 0 To DG_SelectedBox.Rows.Count - 1
+                    SNArrayTemp.Add(Mid(DG_SelectedBox.Item(1, i).Value, 1, 7) & ">5" & Mid(DG_SelectedBox.Item(1, i).Value, 8))
+                Next
+                SNArrayTemp.Add(DG_SelectedBox.Item(3, 0).Value)
+            Else
+                PrintLabel(Controllabel, "Корбка еще не закрыта!", 12, 142, Color.Red)
+            End If
+            Return SNArrayTemp
+        End Function
 
-    Private Sub PrintGroupLabel(sn As ArrayList)
-        Dim Content As String = "
+        Private Sub PrintGroupLabel(sn As ArrayList)
+            Dim Content As String = "
 ^XA~TA000~JSN^LT0^MNW^MTT^PON^PMN^LH0,0^JMA^MD10^JUS^LRN^CI0^XZ
 ~DG000.GRF,06144,064,
 ,:::::::::::::::::::::::::::::::::::::::J01FF0I01FF,::J01FF80H03FF,:::J01F7C0H07DF,:J01F7C0H07DF0H01FF80O03FC0J01F80X0HFP01FF80gO0HFC0O01FF8,J01F3E0H0F9F0H0IFE01FJFC00FHFI07C7FE003E003F81F0H07C003FFC01F003E00FHFE0H01FHFE0J07FIFE00FJFC007FHFH0KFE00FHFE,J01F3E0H0F9F001FIF81FJFC03FHFC007CFHFH03E003F81F0H07C00FHFE01F007E01FIF8007FHFE0J07FIFE00FJFC00FIFC0FJFE01FIF80,J01F3E0H0F9F003FIF81FJFC07FHFE007DFHF803E007F81F0H07C01FIF01F00FE03FIF801FIFE0J07FIFE00FJFC01FIFC0FJFE03FIF80,J01F1F001F1F007FIFC1FJFC0FJFH07DFHFC03E007F81F0H07C03FIF81F01FE07FIFC01FIFE0J07FIFE00FJFC03FIFE0FJFE07FIFC0,J01F1F001F1F00FF01FC1FJFC1FE07F807FE0FE03E00FF81F0H07C07F83FC1F01FE0FF01FC03FIFE0J07FIFE00FJFC07F80FE0FJFE0FF01FC0,J01F1F001F1F00FC007E0H0F8001F801F807F807E03E00FF81F0H07C07E00FC1F03E00FC007E07F003E0J07C003E00F8007C07E003F0H07C0H0FC007E0,J01F1F803F1F01F8003E0H0F8003F0H07C07F003F03E01FF81F0H07C0FC007E1F03E01F8003E07E003E0J07C003E00F8007C0FC001F0H07C001F8003E0,J01F0F803E1F01F8003E0H0F8003E0H07C07F001F03E01FF81F0H07C0F8007E1F03C01F8003E07C003E0J07C003E00F8007C0FC001F0H07C001F8003E0,J01F0F803E1F0070H03E0H0F8003C0H03C07E001F03E03EF81F0H07C0F800381F07C0070H03E07C003E0J07C003E00F8007C038001F0H07C0H070H03E0,J01F0F803E1F0K03E0H0F8007C0H03E07E001F83E03EF81F0H07C1F80I01F0780K03E07C003E0J07C003E00F8007C0J01F0H07C0L03E0,J01F07C07C1F0K0FE0H0F8007FJFE07C0H0F83E07CF81F0H07C1F0J01F0F80K0FE07C003E0J07C003E00F8007C0J07F0H07C0L0FE0,J01F07C07C1F0I01FFE0H0F8007FJFE07C0H0F83E07CF81FJFC1F0J01F0F0J01FFE07E003E0J07C003E00F8007C0I0IFI07C0J01FFE0,J01F07C07C1F0H07FHFE0H0F8007FJFE07C0H0F83E0F8F81FJFC1F0J01F1F0I07FHFE03F803E0J07C003E00F8007C003FIFI07C0I07FHFE0,J01F03E0F81F003FIFE0H0F8007FJFE07C0H0F83E0F8F81FJFC1F0J01FFE0H03FIFE03FIFE0J07C003E00F8007C01FJFI07C0H03FIFE0,J01F03E0F81F007FIFE0H0F8007FJFE07C0H0F83E1F0F81FJFC1F0J01FF80H07FIFE01FIFE0J07C003E00F8007C03FJFI07C0H07FIFE0,J01F03E0F81F00FIF3E0H0F8007C0K07C0H0F83E3F0F81FJFC1F0J01FFE0H0JF3E00FIFE0J07C003E00F8007C07FHF9F0H07C0H0JF3E0,J01F03F1F81F01FFC03E0H0F8007C0K07C0H0F83E3E0F81F0H07C1F0J01F3F001FFC03E007FHFE0J07C003E00F8007C0FFE01F0H07C001FFC03E0,J01F01F1F01F01F8003E0H0F8007C0K07C0H0F83E7E0F81F0H07C1F0J01F1F801F8003E0H0IFE0J07C003E00F8007C0FC001F0H07C001F8003E0,J01F01F1F01F03F0H03E0H0F8007E0K07C001F83E7C0F81F0H07C1F8001C1F0FC03F0H03E001F83E0J07C003E00F8007C1F8001F0H07C003F0H03E0,J01F01F1F01F03E0H07E0H0F8003E0H03007E001F03EF80F81F0H07C0F8001F1F07C03E0H07E003E03E0J07C003E00F8007C1F0H03F0H07C003E0H07E0,J01F00FBE01F03E0H07E0H0F8003F0H07E07E001F03EF80F81F0H07C0F8003F1F07E03E0H07E007E03E0J07C003E00F8007C1F0H03F0H07C003E0H07E0,J01F00FBE01F03E0H0FE0H0F8003F0H0FC07F003F03FF00F81F0H07C0FC003E1F03E03E0H0FE00FC03E0J07C003E00F8007C1F0H07F0H07C003E0H0FE0,J01F00FBE01F03F001FE0H0F8001FC01FC07F807E03FF00F81F0H07C07E007E1F03F03F001FE00F803E0J07C003E00F8007C1F800FF0H07C003F001FE0,J01F007FC01F03FC0FFE0H0F8001FE03F807FC1FE03FE00F81F0H07C07F81FC1F01F83FC0FFE01F803E0J07C003E01F8007C1FE07FF0H07C003FC0FFE0,J01F007FC01F01FJFE0H0F80H0KF807FIFC03FE00F81F0H07C03FIFC1F00F81FJFE03F003E0J07C003E1FF8007C0FKFI07C001FJFE0,J01F007FC01F01FIFBE0H0F80H07FIFH07DFHF803FC00F81F0H07C01FIF81F00FC1FIFBE03E003E0J07C003E1FF8007C0FIFDF0H07C001FIFBE0,J01F007FC01F00FIF3E0H0F80H03FHFE007CFHFH03FC00F81F0H07C00FIF01F007C0FIF3E07E003E0J07C003E1FF0H07C07FHF9F0H07C0H0JF3E0,J01F003F801F003FFE3F0H0F80I0IF8007C7FE003F800F81F0H07C003FFC01F007E03FFE3F0FC003E0J07C003E1FE0H07C01FHF1F8007C0H03FFE3F0,J01F003F801F0H0HF01F0H0F80I03FE0H07C3F0H03F800F81F0H07C0H0HFH01F003F00FF01F0FC003E0J07C003E1FC0H07C007F80F8007C0I0HF01F0,gW07C0,::::::::::,:::::~DG001.GRF,04352,068,
@@ -151,44 +147,45 @@ Public Class WorkForm
 ^XA^ID001.GRF^FS^XZ
 "
 
-        PrintSerialPort.Open()
-        PrintSerialPort.Write(Content) 'ответ в COM порт
-        PrintSerialPort.Close()
-    End Sub
+            PrintSerialPort.Open()
+            PrintSerialPort.Write(Content) 'ответ в COM порт
+            PrintSerialPort.Close()
+        End Sub
 
-    Private Sub CB_SN_or_Box_CheckedChanged(sender As Object, e As EventArgs) Handles CB_SN_or_Box.CheckedChanged
-        If CB_SN_or_Box.Checked = True Then
-            NumBox.Visible = False
-            TB_ScanSN.Visible = True
-            CB_SN_or_Box.Text = "Отсканируйте серийный номер"
-            GB_Lot.Visible = False
-            DG_SelectedBox.Visible = True
-            Controllabel.Text = ""
-            TB_ScanSN.Focus()
-        Else
-            NumBox.Location = New Point(12, 43)
-            TB_ScanSN.Visible = False
-            CB_SN_or_Box.Text = "Введите номер коробки"
-            GB_Lot.Visible = True
-            GB_Lot.Location = New Point(17, 236)
-            DG_SelectedBox.Visible = False
-            PrintLabel(Controllabel, "Выберите ЛОТ для печати!", 12, 142, Color.Red)
+        Private Sub CB_SN_or_Box_CheckedChanged(sender As Object, e As EventArgs) Handles CB_SN_or_Box.CheckedChanged
+            If CB_SN_or_Box.Checked = True Then
+                NumBox.Visible = False
+                TB_ScanSN.Visible = True
+                CB_SN_or_Box.Text = "Отсканируйте серийный номер"
+                GB_Lot.Visible = False
+                DG_SelectedBox.Visible = True
+                Controllabel.Text = ""
+                TB_ScanSN.Focus()
+            Else
+                NumBox.Location = New Point(12, 43)
+                TB_ScanSN.Visible = False
+                CB_SN_or_Box.Text = "Введите номер коробки"
+                GB_Lot.Visible = True
+                GB_Lot.Location = New Point(17, 236)
+                DG_SelectedBox.Visible = False
+                PrintLabel(Controllabel, "Выберите ЛОТ для печати!", 12, 142, Color.Red)
 
-        End If
-    End Sub
-    'Опредеяем номер выбранной строки в таблице лотов
-    Public selRowNum, LOTID As Integer
-    Dim Lot As Integer
-    Private Sub DG_LOTListPresent_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles DG_Lot.CellClick
-        selRowNum = DG_Lot.CurrentCell.RowIndex
-        If MsgBox("ЛОТ выбран?", vbYesNo) = vbYes Then
-            GB_Lot.Visible = False
-            DG_SelectedBox.Visible = True
-            NumBox.Visible = True
-            Controllabel.Text = ""
-            NumBox.Focus()
-        End If
-        Lot = DG_Lot.Item(3, selRowNum).Value
-    End Sub
+            End If
+        End Sub
+        'Опредеяем номер выбранной строки в таблице лотов
+        Public selRowNum, LOTID As Integer
+        Dim Lot As Integer
+        Private Sub DG_LOTListPresent_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles DG_Lot.CellClick
+            selRowNum = DG_Lot.CurrentCell.RowIndex
+            If MsgBox("ЛОТ выбран?", vbYesNo) = vbYes Then
+                GB_Lot.Visible = False
+                DG_SelectedBox.Visible = True
+                NumBox.Visible = True
+                Controllabel.Text = ""
+                NumBox.Focus()
+            End If
+            Lot = DG_Lot.Item(3, selRowNum).Value
+        End Sub
 
-End Class
+    End Class
+

@@ -32,7 +32,7 @@ Namespace My
         
         <Global.System.Diagnostics.DebuggerStepThroughAttribute()>  _
         Protected Overrides Sub OnCreateMainForm()
-            Me.MainForm = Global.PrintGroupLabel.WorkForm2
+            Me.MainForm = Global.PrintGroupLabel.KWC612S2_по_одной
         End Sub
     End Class
 End Namespace

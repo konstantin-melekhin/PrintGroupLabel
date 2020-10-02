@@ -76,6 +76,30 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AquaSN.Designer.vb">
+      <DependentUpon>AquaSN.vb</DependentUpon>
+    </Compile>
+    <Compile Include="AquaSN.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Aqua_GroupLabel.Designer.vb">
+      <DependentUpon>Aqua_GroupLabel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Aqua_GroupLabel.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ICL_Print.Designer.vb">
+      <DependentUpon>ICL_Print.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ICL_Print.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="KWC612S2_по одной.Designer.vb">
+      <DependentUpon>KWC612S2_по одной.vb</DependentUpon>
+    </Compile>
+    <Compile Include="KWC612S2_по одной.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="WorkForm.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -100,14 +124,27 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="WorkForm2.Designer.vb">
-      <DependentUpon>WorkForm2.vb</DependentUpon>
+    <Compile Include="KWH310_по одной.Designer.vb">
+      <DependentUpon>KWH310_по одной.vb</DependentUpon>
     </Compile>
-    <Compile Include="WorkForm2.vb">
+    <Compile Include="KWH310_по одной.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Zebra_Labels.vb" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="AquaSN.resx">
+      <DependentUpon>AquaSN.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Aqua_GroupLabel.resx">
+      <DependentUpon>Aqua_GroupLabel.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ICL_Print.resx">
+      <DependentUpon>ICL_Print.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="KWC612S2_по одной.resx">
+      <DependentUpon>KWC612S2_по одной.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="WorkForm.resx">
       <DependentUpon>WorkForm.vb</DependentUpon>
     </EmbeddedResource>
@@ -117,8 +154,8 @@
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="WorkForm2.resx">
-      <DependentUpon>WorkForm2.vb</DependentUpon>
+    <EmbeddedResource Include="KWH310_по одной.resx">
+      <DependentUpon>KWH310_по одной.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
